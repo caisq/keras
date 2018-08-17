@@ -6,16 +6,25 @@ Gets to 99.25% test accuracy after 12 epochs
 '''
 
 from __future__ import print_function
-import keras
-from keras.datasets import mnist
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten
-from keras.layers import Conv2D, MaxPooling2D
-from keras import backend as K
+# import tf.keras
+# from keras.datasets import mnist
+# from keras.models import Sequential
+# from keras.layers import Dense, Dropout, Flatten
+# from keras.layers import Conv2D, MaxPooling2D
+# from keras import backend as K
+from tensorflow import keras
+from tensorflow.keras.datasets import mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, Flatten
+from tensorflow.keras.layers import Conv2D, MaxPooling2D
+from tensorflow.keras import backend as K
+import tensorflow as tf
+
+tf.enable_eager_execution()
 
 batch_size = 128
 num_classes = 10
-epochs = 12
+epochs = 20
 
 # input image dimensions
 img_rows, img_cols = 28, 28
@@ -48,16 +57,20 @@ model = Sequential()
 model.add(Conv2D(32, kernel_size=(3, 3),
                  activation='relu',
                  input_shape=input_shape))
+model.add(Conv2D(32, kernel_size=(3, 3),
+                 activation='relu'))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Conv2D(64, (3, 3), activation='relu'))
 model.add(Conv2D(64, (3, 3), activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Dropout(0.25))
 model.add(Flatten())
-model.add(Dense(128, activation='relu'))
+model.add(Dropout(0.25))
+model.add(Dense(512, activation='relu'))
 model.add(Dropout(0.5))
 model.add(Dense(num_classes, activation='softmax'))
-
+model.summary()
 model.compile(loss=keras.losses.categorical_crossentropy,
-              optimizer=keras.optimizers.Adadelta(),
+              optimizer=tf.train.RMSPropOptimizer(0.001),
               metrics=['accuracy'])
 
 model.fit(x_train, y_train,
